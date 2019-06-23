@@ -8,7 +8,6 @@
   "dependencies": {
     "@hotelflex/id": "git+https://github.com/hotelflex/id.git#1.1.0",
     "lodash": "^4.17.5",
-    "moment": "^2.22.2",
     "pg": "^7.4.3",
     "knex": "^0.17.0",
     "objection": "^1.6.9"

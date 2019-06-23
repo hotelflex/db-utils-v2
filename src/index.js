@@ -1,6 +1,5 @@
 const pg = require('pg')
 const knex = require('knex')
-const moment = require('moment')
 const Id = require('@hotelflex/id')
 const { transaction } = require('objection')
 const Errors = require('./Errors')
@@ -12,7 +11,7 @@ module.exports.Errors = Errors
 
 module.exports.createOp = (opts={}) => {
   const doc = {}
-  const now = moment.utc().format('YYYY-MM-DDTHH:mm:ss')
+  const now = new Date().toISOString()
   const operationId = opts.operationId || Id.create()
 
   doc.id = operationId
@@ -46,7 +45,7 @@ module.exports.safeUpdate = (knex, table, doc, data) => {
     if(_doc.updatedAt > doc.updatedAt) 
       throw new Errors.WriteFailure('Update conflict.')
     
-    data.updatedAt = moment
+    data.updatedAt = new Date().toISOString()
       .utc()
       .format('YYYY-MM-DDTHH:mm:ss')
     
