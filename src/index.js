@@ -1,7 +1,5 @@
 const pg = require('pg')
 const knex = require('knex')
-const Id = require('@hotelflex/id')
-const { transaction } = require('objection')
 const Errors = require('./Errors')
 
 pg.types.setTypeParser(20, 'text', parseInt)
@@ -9,50 +7,9 @@ pg.types.setTypeParser(1700, 'text', parseFloat)
 
 module.exports.Errors = Errors
 
-module.exports.createOp = (opts={}) => {
-  const doc = {}
-  const now = new Date().toISOString()
-  const operationId = opts.operationId || Id.create()
-
-  doc.id = operationId
-  doc.timestamp = now
-  doc.committed = !opts.messages
-  doc.retrySafe = true
-
-  if(opts.messages) {
-    const transactionId = opts.transactionId || Id.create()
-    doc.messages = JSON.stringify(
-      opts.messages.map((m,i) => ({
-        id: Id.create(),
-        topic: m.topic,
-        body: m.body,
-        timestamp: now,
-        transactionId,
-        operationId: Id.create(operationId + i),
-      }))
-    )
-  }
-  return doc
-}
-
-module.exports.safeUpdate = (knex, table, doc, data) => {
-  return transaction(knex, async (trx) => {
-    const _doc = await trx(table)
-      .query()
-      .where('id', doc.id)
-      .first('updatedAt')
-
-    if(_doc.updatedAt > doc.updatedAt) 
-      throw new Errors.WriteFailure('Update conflict.')
-    
-    data.updatedAt = new Date().toISOString()
-      .utc()
-      .format('YYYY-MM-DDTHH:mm:ss')
-    
-    return trx(table)
-      .query()
-      .where('id', doc.id)
-      .update(data)
+module.exports.createTransaction = knex => {
+  return new Promise(resolve => {
+    return knex.transaction(resolve)
   })
 }
 
