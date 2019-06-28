@@ -7,7 +7,6 @@
   },
   "author": "Hotelflex",
   "license": "UNLICENSED",
-  "private": true,
   "dependencies": {
     "pg": "^7.4.3",
     "knex": "^0.17.0",
